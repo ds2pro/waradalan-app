@@ -1,19 +1,18 @@
-const tintColorLight = "#01A0C0"; // Teal Blue
-const tintColorDark = "#4BA761"; // Leaf Green (secondary in dark mode)
-
 export default {
   light: {
     text: "#222",
     background: "#fff",
-    tint: tintColorLight,
+    tint: "#01A0C0",
     tabIconDefault: "#ccc",
-    tabIconSelected: tintColorLight,
+    tabIconSelected: "#01A0C0",
+    card: "#f5f8fa", // Light card color
   },
   dark: {
     text: "#fff",
     background: "#121212",
-    tint: tintColorDark,
+    tint: "#4BA761",
     tabIconDefault: "#666",
-    tabIconSelected: tintColorDark,
+    tabIconSelected: "#4BA761",
+    card: "#1e1e1e", // Dark card color
   },
 };

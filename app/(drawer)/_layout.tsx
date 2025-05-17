@@ -1,15 +1,24 @@
-import { View, Text, Pressable, StyleSheet, I18nManager } from "react-native";
+import {
+  View,
+  Text,
+  Pressable,
+  StyleSheet,
+  I18nManager,
+  useWindowDimensions,
+} from "react-native";
 import React, { useEffect } from "react";
 import { Drawer } from "expo-router/drawer";
 import { Link } from "expo-router";
 import { DrawerActions } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import Colors from "@/constants/Colors";
-import { useColorScheme } from "@/components/useColorScheme";
+import { useAppTheme } from "@/lib/context/ThemeContext";
 import { StatusBar } from "expo-status-bar";
 
 export default function DrawerLayout() {
-  const colorScheme = useColorScheme();
+  const { theme } = useAppTheme();
+  const color = Colors[theme];
+  const dimensions = useWindowDimensions();
 
   useEffect(() => {
     if (!I18nManager.isRTL) {
@@ -20,73 +29,57 @@ export default function DrawerLayout() {
   return (
     <>
       <StatusBar
-        animated={true}
-        style={colorScheme === "dark" ? "light" : "dark"}
-        backgroundColor={colorScheme === "dark" ? "#121212" : "#fff"}
+        animated
+        style={theme === "dark" ? "light" : "dark"}
+        backgroundColor={color.background}
       />
       <Drawer
         screenOptions={{
           drawerPosition: "right",
           headerShown: false,
           drawerStyle: {
-            width: "100%", // full screen width
+            width: dimensions.width,
+            backgroundColor: color.background,
           },
         }}
         drawerContent={(props) => (
-          <View style={styles.overlayDrawer}>
+          <View
+            style={[
+              styles.overlayDrawer,
+              { backgroundColor: color.background },
+            ]}
+          >
             <Pressable
               onPress={() =>
                 props.navigation.dispatch(DrawerActions.closeDrawer())
               }
               style={styles.closeButton}
             >
-              <Ionicons name="close" size={30} />
+              <Ionicons name="close" size={30} color={color.text} />
             </Pressable>
 
             <Link href="/" asChild>
               <Pressable style={styles.link}>
-                <Text
-                  style={[
-                    styles.text,
-                    { color: Colors[colorScheme ?? "light"].tint },
-                  ]}
-                >
+                <Text style={[styles.text, { color: color.text }]}>
                   الرئيسية
                 </Text>
               </Pressable>
             </Link>
             <Link href="/about" asChild>
               <Pressable style={styles.link}>
-                <Text
-                  style={[
-                    styles.text,
-                    { color: Colors[colorScheme ?? "light"].tint },
-                  ]}
-                >
-                  من نحن
-                </Text>
+                <Text style={[styles.text, { color: color.text }]}>من نحن</Text>
               </Pressable>
             </Link>
             <Link href="/contact" asChild>
               <Pressable style={styles.link}>
-                <Text
-                  style={[
-                    styles.text,
-                    { color: Colors[colorScheme ?? "light"].tint },
-                  ]}
-                >
+                <Text style={[styles.text, { color: color.text }]}>
                   اتصل بنا
                 </Text>
               </Pressable>
             </Link>
             <Link href="/privacy" asChild>
               <Pressable style={styles.link}>
-                <Text
-                  style={[
-                    styles.text,
-                    { color: Colors[colorScheme ?? "light"].tint },
-                  ]}
-                >
+                <Text style={[styles.text, { color: color.text }]}>
                   سياسة الخصوصية
                 </Text>
               </Pressable>
@@ -103,7 +96,6 @@ export default function DrawerLayout() {
 const styles = StyleSheet.create({
   overlayDrawer: {
     flex: 1,
-    backgroundColor: "#fff",
     paddingTop: 60,
     paddingHorizontal: 20,
   },

@@ -11,23 +11,33 @@ export default function TabLayout() {
 
   return (
     <Tabs
-      screenOptions={{
+      screenOptions={({ route }) => ({
         headerTitleAlign: "center",
-        headerRight: () => (
-          <Pressable
-            onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
-            style={{ marginRight: 20 }}
-          >
-            <Ionicons
-              name="menu"
-              size={24}
-              color={Colors[colorScheme ?? "light"].text}
-            />
-          </Pressable>
-        ),
+        headerRight: () =>
+          route.name === "index" ? (
+            <Pressable
+              onPress={() => navigation.dispatch(DrawerActions.openDrawer())}
+              style={{ marginRight: 20 }}
+            >
+              <Ionicons
+                name="menu"
+                size={24}
+                color={Colors[colorScheme ?? "light"].text}
+              />
+            </Pressable>
+          ) : null,
         tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
-        tabBarItemStyle: { flexDirection: "row-reverse" },
-      }}
+        tabBarInactiveTintColor: Colors[colorScheme ?? "light"].tabIconDefault,
+        tabBarStyle: {
+          backgroundColor: Colors[colorScheme ?? "light"].background,
+        },
+        headerStyle: {
+          backgroundColor: Colors[colorScheme ?? "light"].background,
+        },
+        headerTitleStyle: {
+          color: Colors[colorScheme ?? "light"].text,
+        },
+      })}
     >
       <Tabs.Screen
         name="settings"

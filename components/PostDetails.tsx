@@ -3,6 +3,8 @@ import { WordPressPost } from "@/lib/types/types";
 import { decodeHtmlEntities } from "@/lib/utils/decodeHtml";
 import PostCard from "./PostCard";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useAppTheme } from "@/lib/context/ThemeContext";
+import Colors from "@/constants/Colors";
 
 export default function PostDetails({
   post,
@@ -23,26 +25,39 @@ export default function PostDetails({
     minute: "2-digit",
   });
 
+  const { theme } = useAppTheme();
+  const colors = Colors[theme];
+
   return (
     <SafeAreaView style={{ flex: 1 }} edges={["top", "bottom"]}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.container,
+          { backgroundColor: colors.background },
+        ]}
+      >
+        <Text style={[styles.title, { color: colors.text }]}>
           {decodeHtmlEntities(post.title.rendered)}
         </Text>
+
         <Image
           source={typeof image === "string" ? { uri: image } : image}
           style={styles.image}
         />
 
-        <Text style={styles.meta}>{formattedDate}</Text>
+        <Text style={[styles.meta, { color: colors.tabIconDefault }]}>
+          {formattedDate}
+        </Text>
 
-        <Text style={styles.content}>
-          {decodeHtmlEntities(post.excerpt?.rendered?.replace(/<[^>]+>/g, ""))}
+        <Text style={[styles.content, { color: colors.text }]}>
+          {decodeHtmlEntities(post.content?.rendered?.replace(/<[^>]+>/g, ""))}
         </Text>
 
         {related && related.length > 0 && (
           <View style={styles.relatedSection}>
-            <Text style={styles.relatedTitle}>مواضيع ذات صلة</Text>
+            <Text style={[styles.relatedTitle, { color: colors.tint }]}>
+              مواضيع ذات صلة
+            </Text>
             {related.map((relPost) => (
               <PostCard key={relPost.id} post={relPost} />
             ))}
@@ -56,14 +71,13 @@ export default function PostDetails({
 const styles = StyleSheet.create({
   container: {
     padding: 16,
-    backgroundColor: "#fff",
+    flexGrow: 1,
   },
   title: {
     fontSize: 18,
     fontWeight: "700",
     textAlign: "right",
     marginBottom: 12,
-    color: "#1a1a1a",
   },
   image: {
     width: "100%",
@@ -72,7 +86,6 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   meta: {
-    color: "#777",
     fontSize: 12,
     textAlign: "right",
     marginBottom: 16,
@@ -81,7 +94,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     textAlign: "right",
     lineHeight: 24,
-    color: "#222",
     marginBottom: 30,
   },
   relatedSection: {
@@ -92,6 +104,5 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     textAlign: "right",
     marginBottom: 12,
-    color: "#4BA761",
   },
 });

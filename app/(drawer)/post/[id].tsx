@@ -13,6 +13,8 @@ import {
   StyleSheet,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { useAppTheme } from "@/lib/context/ThemeContext";
+import Colors from "@/constants/Colors";
 
 export default function PostScreen() {
   const { id } = useLocalSearchParams();
@@ -20,6 +22,9 @@ export default function PostScreen() {
   const [post, setPost] = useState<WordPressPost | null>(null);
   const [related, setRelated] = useState<WordPressPost[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const { theme } = useAppTheme();
+  const colors = Colors[theme];
 
   useEffect(() => {
     (async () => {
@@ -39,14 +44,25 @@ export default function PostScreen() {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: "center" }}>
-        <ActivityIndicator />
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          backgroundColor: colors.background,
+        }}
+      >
+        <ActivityIndicator color={colors.tint} />
       </View>
     );
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView
+      contentContainerStyle={[
+        styles.container,
+        { backgroundColor: colors.background },
+      ]}
+    >
       <LinearGradient
         colors={["#01A0C0", "#4BA761"]}
         style={styles.gradientHeader}
@@ -55,6 +71,7 @@ export default function PostScreen() {
           {decodeHtmlEntities(post?.title.rendered ?? "")}
         </Text>
       </LinearGradient>
+
       {post && (
         <>
           {post._embedded?.["wp:featuredmedia"]?.[0]?.source_url && (
@@ -63,13 +80,15 @@ export default function PostScreen() {
               style={styles.image}
             />
           )}
-          <Text style={styles.date}>
-            {new Date(post.date).toLocaleString("ar-EG")}
+          <Text style={[styles.date, { color: colors.text }]}>
+            {new Date(post.date).toLocaleString("ar-LB")}
           </Text>
-          <Text style={styles.content}>
+          <Text style={[styles.content, { color: colors.text }]}>
             {decodeHtmlEntities(post.content.rendered.replace(/<[^>]+>/g, ""))}
           </Text>
-          <Text style={styles.relatedTitle}>مواضيع ذات صلة</Text>
+          <Text style={[styles.relatedTitle, { color: colors.tint }]}>
+            مواضيع ذات صلة
+          </Text>
           {related.map((item) => (
             <PostCard key={item.id} post={item} />
           ))}
@@ -82,7 +101,6 @@ export default function PostScreen() {
 const styles = StyleSheet.create({
   container: {
     padding: 10,
-    backgroundColor: "#fff",
   },
   gradientHeader: {
     padding: 15,
@@ -103,20 +121,17 @@ const styles = StyleSheet.create({
   },
   date: {
     textAlign: "right",
-    color: "#888",
     marginBottom: 10,
   },
   content: {
     textAlign: "right",
     fontSize: 16,
     lineHeight: 24,
-    color: "#333",
     marginBottom: 20,
   },
   relatedTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#4BA761",
     textAlign: "right",
     marginTop: 20,
     marginBottom: 10,

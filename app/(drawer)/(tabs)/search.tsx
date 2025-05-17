@@ -12,10 +12,15 @@ import { getPosts } from "@/lib/api/wordpress";
 import { WordPressPost } from "@/lib/types/types";
 import PostCard from "@/components/PostCard";
 import { useRouter } from "expo-router";
+import { useAppTheme } from "@/lib/context/ThemeContext";
+import Colors from "@/constants/Colors";
 
 const tabs = ["الأحدث", "الأكثر صلة"];
 
 export default function SearchScreen() {
+  const { theme } = useAppTheme();
+  const colors = Colors[theme];
+
   const [query, setQuery] = useState("");
   const [activeTab, setActiveTab] = useState("الأحدث");
   const [results, setResults] = useState<WordPressPost[]>([]);
@@ -72,17 +77,17 @@ export default function SearchScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.card }]}>
       {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        {/* Search Icon (Right) */}
+      <View
+        style={[styles.searchContainer, { backgroundColor: colors.background }]}
+      >
         <Pressable style={styles.iconRight} onPress={handleSearch}>
-          <Ionicons name="search" size={20} color="#4BA761" />
+          <Ionicons name="search" size={20} color={colors.tint} />
         </Pressable>
 
-        {/* Input */}
         <TextInput
-          style={styles.input}
+          style={[styles.input, { color: colors.text }]}
           placeholder="أدخل كلمة البحث..."
           placeholderTextColor="#888"
           textAlign="right"
@@ -91,7 +96,6 @@ export default function SearchScreen() {
           onSubmitEditing={handleSearch}
         />
 
-        {/* Clear Icon (Left) */}
         {query.length > 0 && (
           <Pressable
             style={styles.iconLeft}
@@ -100,11 +104,10 @@ export default function SearchScreen() {
               setResults([]);
               setPage(1);
               setTotal(0);
-
               router.replace("/search");
             }}
           >
-            <Ionicons name="close" size={20} color="#4BA761" />
+            <Ionicons name="close" size={20} color={colors.tint} />
           </Pressable>
         )}
       </View>
@@ -120,13 +123,13 @@ export default function SearchScreen() {
             }}
             style={[
               styles.tabButton,
-              activeTab === tab && styles.tabButtonActive,
+              { backgroundColor: tab === activeTab ? colors.tint : "#e1ecf1" },
             ]}
           >
             <Text
               style={[
                 styles.tabText,
-                activeTab === tab && styles.tabTextActive,
+                { color: tab === activeTab ? "#fff" : colors.tint },
               ]}
             >
               {tab}
@@ -141,7 +144,6 @@ export default function SearchScreen() {
         </Text>
       )}
 
-      {/* Results */}
       <FlatList
         data={results}
         keyExtractor={(item) => item.id.toString()}
@@ -171,13 +173,11 @@ export default function SearchScreen() {
 const styles = StyleSheet.create({
   container: {
     padding: 16,
-    backgroundColor: "#f2f6f9",
     flex: 1,
   },
   searchContainer: {
     flexDirection: "row-reverse",
     alignItems: "center",
-    backgroundColor: "#eaf1f5",
     borderRadius: 8,
     paddingHorizontal: 8,
     marginBottom: 16,
@@ -186,7 +186,6 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 40,
     fontSize: 16,
-    color: "#222",
   },
   iconRight: {
     padding: 6,
@@ -204,63 +203,11 @@ const styles = StyleSheet.create({
   tabButton: {
     flex: 1,
     paddingVertical: 10,
-    backgroundColor: "#e1ecf1",
     borderRadius: 6,
-  },
-  tabButtonActive: {
-    backgroundColor: "#01A0C0",
   },
   tabText: {
     textAlign: "center",
-    color: "#4BA761",
-    fontWeight: "500",
-  },
-  tabTextActive: {
-    color: "#fff",
     fontWeight: "700",
-  },
-  resultCard: {
-    flexDirection: "row-reverse",
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    marginBottom: 16,
-    overflow: "hidden",
-    padding: 10,
-    alignItems: "center",
-  },
-  resultImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 6,
-    marginLeft: 10,
-  },
-  resultTextContainer: {
-    flex: 1,
-  },
-  resultExcerpt: {
-    color: "#555",
-    fontSize: 13,
-    textAlign: "right",
-    marginTop: 4,
-  },
-  category: {
-    color: "#01A0C0",
-    fontSize: 12,
-    textAlign: "right",
-    marginBottom: 6,
-    fontWeight: "500",
-  },
-  resultTitle: {
-    color: "#111",
-    fontSize: 14,
-    textAlign: "right",
-    fontWeight: "600",
-  },
-  resultMeta: {
-    color: "#888",
-    fontSize: 12,
-    textAlign: "right",
-    marginTop: 6,
   },
   noResult: {
     marginTop: 30,

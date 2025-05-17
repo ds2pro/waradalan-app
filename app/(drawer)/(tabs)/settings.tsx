@@ -1,40 +1,90 @@
-import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Switch,
+  ScrollView,
+  useColorScheme,
+} from "react-native";
+import { useAppTheme } from "@/lib/context/ThemeContext";
+import { useState } from "react";
 import { Link } from "expo-router";
+import Colors from "@/constants/Colors";
 
 export default function SettingsScreen() {
+  const systemScheme = useColorScheme();
+  const { theme, toggleTheme } = useAppTheme();
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+
+  const isDark = theme === "dark";
+  const colors = Colors[theme];
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView
+      contentContainerStyle={[
+        styles.container,
+        { backgroundColor: colors.card },
+      ]}
+    >
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>مظهر التطبيق</Text>
-        <Pressable style={styles.row}>
-          <Text style={styles.text}>مضيء</Text>
-        </Pressable>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>
+          مظهر التطبيق
+        </Text>
+        <View style={[styles.row, { backgroundColor: colors.background }]}>
+          <Text style={[styles.text, { color: colors.text }]}>مضيء</Text>
+          <Switch
+            value={!isDark}
+            onValueChange={toggleTheme}
+            thumbColor={!isDark ? "#4BA761" : "#ccc"}
+            trackColor={{ false: "#ccc", true: "#CFF0DD" }}
+          />
+        </View>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>إشعارات</Text>
-        <Pressable style={styles.row}>
-          <Text style={styles.text}>السماح بالإشعارات</Text>
-        </Pressable>
-        <Pressable style={styles.row}>
-          <Text style={styles.text}>إدارة الإشعارات</Text>
-        </Pressable>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>
+          إشعارات
+        </Text>
+        <View style={[styles.row, { backgroundColor: colors.background }]}>
+          <Text style={[styles.text, { color: colors.text }]}>
+            السماح بالإشعارات
+          </Text>
+          <Switch
+            value={notificationsEnabled}
+            onValueChange={setNotificationsEnabled}
+            thumbColor={notificationsEnabled ? "#4BA761" : "#ccc"}
+            trackColor={{ false: "#ccc", true: "#CFF0DD" }}
+          />
+        </View>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>خصوصية البيانات</Text>
-        <Link href="/privacy" asChild>
-          <Pressable style={styles.row}>
-            <Text style={styles.text}>سياسة الخصوصية</Text>
-          </Pressable>
-        </Link>
-        <Pressable style={styles.row}>
-          <Text style={styles.text}>شروط الاستخدام</Text>
-        </Pressable>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>
+          خصوصية البيانات
+        </Text>
+
+        <View style={[styles.linkContainer]}>
+          <Link
+            style={[styles.row, { backgroundColor: colors.background }]}
+            href="/privacy"
+            asChild
+          >
+            <View>
+              <Text style={[styles.text, { color: colors.text }]}>
+                سياسة الخصوصية
+              </Text>
+            </View>
+          </Link>
+        </View>
       </View>
 
-      <Text style={styles.footer}>© جميع الحقوق محفوظة ورد الآن 2025</Text>
-      <Text style={styles.version}>v1.0.0</Text>
+      {/* Push footer to bottom */}
+      <View style={{ flex: 1, justifyContent: "flex-end", marginTop: 60 }}>
+        <Text style={[styles.footer, { color: colors.text }]}>
+          © جميع الحقوق محفوظة ورد الآن 2025
+        </Text>
+        <Text style={[styles.version, { color: colors.text }]}>v1.0.0</Text>
+      </View>
     </ScrollView>
   );
 }
@@ -42,23 +92,24 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    backgroundColor: "#f5f8fa",
+    flexGrow: 1,
   },
   section: {
     marginBottom: 30,
   },
   sectionTitle: {
     fontSize: 16,
-    color: "#888",
     marginBottom: 10,
     textAlign: "right",
     fontWeight: "600",
   },
   row: {
-    backgroundColor: "#fff",
     padding: 15,
     borderRadius: 8,
     marginBottom: 10,
+    flexDirection: "row-reverse",
+    alignItems: "center",
+    justifyContent: "space-between",
     shadowColor: "#000",
     shadowOpacity: 0.05,
     shadowOffset: { width: 0, height: 1 },
@@ -67,16 +118,17 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 16,
     textAlign: "right",
-    color: "#333",
+  },
+  linkContainer: {
+    marginTop: 10,
   },
   footer: {
     textAlign: "center",
-    color: "#aaa",
-    marginTop: 50,
+    marginTop: 20,
   },
   version: {
     textAlign: "center",
-    color: "#ccc",
     fontSize: 12,
+    marginTop: 4,
   },
 });

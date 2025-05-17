@@ -2,6 +2,8 @@ import { View, Text, Image, StyleSheet, Pressable } from "react-native";
 import { WordPressPost } from "@/lib/types/types";
 import { decodeHtmlEntities } from "@/lib/utils/decodeHtml";
 import { useRouter } from "expo-router";
+import { useAppTheme } from "@/lib/context/ThemeContext";
+import Colors from "@/constants/Colors";
 
 export default function PostCard({
   post,
@@ -11,10 +13,13 @@ export default function PostCard({
   replace?: boolean;
 }) {
   const router = useRouter();
+  const { theme } = useAppTheme();
+  const colors = Colors[theme];
 
   const image =
     post._embedded?.["wp:featuredmedia"]?.[0]?.source_url ??
     require("@/assets/images/logo.png");
+
   const category = post._embedded?.["wp:term"]?.[0]?.[0]?.name;
   const excerpt = post.excerpt?.rendered?.replace(/<[^>]+>/g, "");
   const formattedDate = new Date(post.date).toLocaleString("ar-EG", {
@@ -27,7 +32,7 @@ export default function PostCard({
 
   return (
     <Pressable
-      style={styles.card}
+      style={[styles.card, { backgroundColor: colors.background }]}
       onPress={() =>
         replace
           ? router.replace({
@@ -48,14 +53,19 @@ export default function PostCard({
       )}
 
       <View style={styles.content}>
-        <Text style={styles.category}>{category}</Text>
-        <Text style={styles.title} numberOfLines={2}>
+        <Text style={[styles.category, { color: colors.tint }]}>
+          {category}
+        </Text>
+        <Text style={[styles.title, { color: colors.text }]} numberOfLines={2}>
           {decodeHtmlEntities(post.title.rendered)}
         </Text>
-        <Text style={styles.excerpt} numberOfLines={2}>
+        <Text
+          style={[styles.excerpt, { color: colors.text }]}
+          numberOfLines={2}
+        >
           {decodeHtmlEntities(excerpt)}
         </Text>
-        <Text style={styles.date}>{formattedDate}</Text>
+        <Text style={[styles.date, { color: "#888" }]}>{formattedDate}</Text>
       </View>
     </Pressable>
   );
@@ -64,7 +74,6 @@ export default function PostCard({
 const styles = StyleSheet.create({
   card: {
     flexDirection: "row-reverse",
-    backgroundColor: "#fff",
     borderRadius: 10,
     marginBottom: 16,
     overflow: "hidden",
@@ -81,26 +90,22 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   category: {
-    color: "#01A0C0",
     fontSize: 12,
     textAlign: "right",
     marginBottom: 4,
     fontWeight: "500",
   },
   title: {
-    color: "#111",
     fontSize: 14,
     textAlign: "right",
     fontWeight: "600",
   },
   excerpt: {
-    color: "#555",
     fontSize: 13,
     textAlign: "right",
     marginTop: 4,
   },
   date: {
-    color: "#888",
     fontSize: 12,
     textAlign: "right",
     marginTop: 6,
