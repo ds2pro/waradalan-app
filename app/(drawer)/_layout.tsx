@@ -59,18 +59,10 @@ export default function DrawerLayout() {
             </Pressable>
 
             <DrawerLink href="/" label="الرئيسية" color={color.text} />
+            <DrawerLink href="/about" label="من نحن" color={color.text} />
+            <DrawerLink href="/contact" label="اتصل بنا" color={color.text} />
             <DrawerLink
-              href="/(drawer)/about"
-              label="من نحن"
-              color={color.text}
-            />
-            <DrawerLink
-              href="/(drawer)/contact"
-              label="اتصل بنا"
-              color={color.text}
-            />
-            <DrawerLink
-              href="/(drawer)/privacy"
+              href="/privacy"
               label="سياسة الخصوصية"
               color={color.text}
             />
@@ -88,7 +80,7 @@ function DrawerLink({
   label,
   color,
 }: {
-  href: string;
+  href: "/about" | "/contact" | "/privacy" | "/";
   label: string;
   color: string;
 }) {
