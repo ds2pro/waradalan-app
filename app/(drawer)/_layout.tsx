@@ -58,38 +58,46 @@ export default function DrawerLayout() {
               <Ionicons name="close" size={30} color={color.text} />
             </Pressable>
 
-            <Link href="/" asChild>
-              <Pressable style={styles.link}>
-                <Text style={[styles.text, { color: color.text }]}>
-                  الرئيسية
-                </Text>
-              </Pressable>
-            </Link>
-            <Link href="/about" asChild>
-              <Pressable style={styles.link}>
-                <Text style={[styles.text, { color: color.text }]}>من نحن</Text>
-              </Pressable>
-            </Link>
-            <Link href="/contact" asChild>
-              <Pressable style={styles.link}>
-                <Text style={[styles.text, { color: color.text }]}>
-                  اتصل بنا
-                </Text>
-              </Pressable>
-            </Link>
-            <Link href="/privacy" asChild>
-              <Pressable style={styles.link}>
-                <Text style={[styles.text, { color: color.text }]}>
-                  سياسة الخصوصية
-                </Text>
-              </Pressable>
-            </Link>
+            <DrawerLink href="/" label="الرئيسية" color={color.text} />
+            <DrawerLink
+              href="/(drawer)/about"
+              label="من نحن"
+              color={color.text}
+            />
+            <DrawerLink
+              href="/(drawer)/contact"
+              label="اتصل بنا"
+              color={color.text}
+            />
+            <DrawerLink
+              href="/(drawer)/privacy"
+              label="سياسة الخصوصية"
+              color={color.text}
+            />
           </View>
         )}
       >
         <Drawer.Screen name="(tabs)" />
       </Drawer>
     </>
+  );
+}
+
+function DrawerLink({
+  href,
+  label,
+  color,
+}: {
+  href: string;
+  label: string;
+  color: string;
+}) {
+  return (
+    <Link href={href} asChild>
+      <Pressable style={styles.link}>
+        <Text style={[styles.text, { color }]}>{label}</Text>
+      </Pressable>
+    </Link>
   );
 }
 
@@ -105,8 +113,8 @@ const styles = StyleSheet.create({
   },
   link: {
     paddingVertical: 20,
-    borderBottomWidth: 2,
-    borderBottomColor: "#F1F9F3",
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
   },
   text: {
     fontSize: 18,
