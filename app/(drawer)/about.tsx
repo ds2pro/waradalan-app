@@ -17,7 +17,7 @@ export default function About() {
     >
       {/* Header */}
       <View style={styles.headerRow}>
-        <Pressable onPress={() => router.back()} style={styles.backButton}>
+        <Pressable onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color={colors.text} />
         </Pressable>
         <Text style={[styles.headerTitle, { color: colors.text }]}>من نحن</Text>
@@ -81,10 +81,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 20,
   },
-  backButton: {
-    marginRight: 10,
-  },
   headerTitle: {
+    flex: 1,
+    textAlign: "center",
     fontSize: 20,
     fontWeight: "bold",
   },
