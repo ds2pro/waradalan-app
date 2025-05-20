@@ -1,9 +1,26 @@
 const API_URL = "https://waradalan.com/wp-json/wp/v2";
-import { WordPressPost } from "@/lib/types/types";
+import { WordPressPost, Category } from "@/lib/types/types";
 
-export async function getCategories() {
-  const res = await fetch(`${API_URL}/categories?_embed`);
-  return res.json();
+export async function getCategories(): Promise<Category[]> {
+  try {
+    const customOrder = [12, 7, 3, 46, 28, 5, 2, 36, 8];
+    const res = await fetch(
+      `${API_URL}/categories?include=${customOrder.join(",")}&_embed`
+    );
+
+    if (!res.ok) throw new Error("Failed to fetch categories");
+
+    const categories: Category[] = await res.json();
+
+    const sorted = customOrder
+      .map((id) => categories.find((cat: Category) => cat.id === id))
+      .filter((cat): cat is Category => Boolean(cat));
+
+    return sorted;
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+    return [];
+  }
 }
 
 export async function getPosts(params: Record<string, any> = {}) {
@@ -13,11 +30,6 @@ export async function getPosts(params: Record<string, any> = {}) {
   const total = parseInt(res.headers.get("X-WP-Total") || "0");
   return { posts: data, total };
 }
-
-// export async function getPost(id: number) {
-//   const res = await fetch(`${API_URL}/posts/${id}?_embed`);
-//   return res.json();
-// }
 
 export async function getPost(id: string): Promise<WordPressPost> {
   const res = await fetch(`${API_URL}/posts/${id}?_embed`);

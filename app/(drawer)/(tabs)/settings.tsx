@@ -58,30 +58,10 @@ export default function SettingsScreen() {
         </View>
       </View>
 
-      <View style={styles.section}>
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>
-          خصوصية البيانات
-        </Text>
-
-        <View style={[styles.linkContainer]}>
-          <Link
-            style={[styles.row, { backgroundColor: colors.background }]}
-            href="/privacy"
-            asChild
-          >
-            <View>
-              <Text style={[styles.text, { color: colors.text }]}>
-                سياسة الخصوصية
-              </Text>
-            </View>
-          </Link>
-        </View>
-      </View>
-
       {/* Push footer to bottom */}
       <View style={{ flex: 1, justifyContent: "flex-end", marginTop: 60 }}>
         <Text style={[styles.footer, { color: colors.text }]}>
-          © جميع الحقوق محفوظة ورد الآن 2025
+          © جميع الحقوق محفوظة ورد الآن {new Date().getFullYear()}{" "}
         </Text>
         <Text style={[styles.version, { color: colors.text }]}>v1.0.0</Text>
       </View>

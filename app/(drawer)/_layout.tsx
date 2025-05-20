@@ -31,7 +31,7 @@ export default function DrawerLayout() {
       <StatusBar
         animated
         style={theme === "dark" ? "light" : "dark"}
-        backgroundColor={color.background}
+        // backgroundColor={color.background}
       />
       <Drawer
         screenOptions={{

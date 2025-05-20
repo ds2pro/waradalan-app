@@ -6,7 +6,8 @@
       "@/*": [
         "./*"
       ]
-    }
+    },
+    "typeRoots": ["./lib/types", "./node_modules/@types"]
   },
   "include": [
     "**/*.ts",
