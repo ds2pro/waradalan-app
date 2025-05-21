@@ -3,7 +3,7 @@ import { WordPressPost, Category } from "@/lib/types/types";
 
 export async function getCategories(): Promise<Category[]> {
   try {
-    const customOrder = [12, 7, 3, 46, 28, 5, 2, 36, 8];
+    const customOrder = [39, 7, 3, 46, 28, 5, 2, 36, 8];
     const res = await fetch(
       `${API_URL}/categories?include=${customOrder.join(",")}&_embed`
     );
@@ -11,6 +11,11 @@ export async function getCategories(): Promise<Category[]> {
     if (!res.ok) throw new Error("Failed to fetch categories");
 
     const categories: Category[] = await res.json();
+
+    if (categories.length === 0) {
+      console.log("No categories found");
+      return [];
+    }
 
     const sorted = customOrder
       .map((id) => categories.find((cat: Category) => cat.id === id))
@@ -23,12 +28,48 @@ export async function getCategories(): Promise<Category[]> {
   }
 }
 
+// export async function getBreakingNews(id: string): Promise<String> {
+//   try {
+//     const res = await fetch(
+//       `${API_URL}/posts/categories=${id}&status=publish&_embed`
+//     );
+//     if (!res.ok) throw new Error("Failed to fetch breaking news");
+
+//     const data = await res.json();
+
+//     if (data.length === 0) {
+//       console.log("No breaking news found");
+//       return "";
+//     }
+//     console.log("Breaking News Data:", data);
+
+//     return "";
+//   } catch (error) {
+//     console.error("Error fetching breaking news:", error);
+//     return "";
+//   }
+// }
+
 export async function getPosts(params: Record<string, any> = {}) {
-  const query = new URLSearchParams({ ...params, _embed: "true" }).toString();
-  const res = await fetch(`${API_URL}/posts?${query}`);
-  const data = await res.json();
-  const total = parseInt(res.headers.get("X-WP-Total") || "0");
-  return { posts: data, total };
+  try {
+    const query = new URLSearchParams({ ...params, _embed: "true" }).toString();
+    const res = await fetch(`${API_URL}/posts?${query}`);
+
+    if (!res.ok) throw new Error("Failed to fetch posts");
+
+    const data = await res.json();
+
+    if (data.length === 0) {
+      console.log("No posts found");
+      return { posts: [], total: 0 };
+    }
+
+    const total = parseInt(res.headers.get("X-WP-Total") || "0");
+    return { posts: data, total };
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    return { posts: [], total: 0 };
+  }
 }
 
 export async function getPost(id: string): Promise<WordPressPost> {

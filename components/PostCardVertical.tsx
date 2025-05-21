@@ -5,7 +5,7 @@ import { useRouter } from "expo-router";
 import { useAppTheme } from "@/lib/context/ThemeContext";
 import Colors from "@/constants/Colors";
 
-export default function PostCard({
+export default function PostCardVertical({
   post,
   replace = false,
 }: {
@@ -16,11 +16,12 @@ export default function PostCard({
   const { theme } = useAppTheme();
   const colors = Colors[theme];
 
+  const featuredMedia = post._embedded?.["wp:featuredmedia"]?.[0];
   const image =
-    post._embedded?.["wp:featuredmedia"]?.[0]?.source_url ??
-    require("@/assets/images/logo.png");
+    featuredMedia?.media_details?.sizes?.medium?.source_url ||
+    featuredMedia?.source_url ||
+    Image.resolveAssetSource(require("@/assets/images/logo.png")).uri;
 
-  const category = post._embedded?.["wp:term"]?.[0]?.[0]?.name;
   const excerpt = post.excerpt?.rendered?.replace(/<[^>]+>/g, "");
   const formattedDate = new Date(post.date).toLocaleString("ar-LB", {
     year: "numeric",
@@ -32,7 +33,7 @@ export default function PostCard({
 
   return (
     <Pressable
-      style={[styles.card, { backgroundColor: colors.background }]}
+      style={[styles.card, { backgroundColor: colors.card }]}
       onPress={() =>
         replace
           ? router.replace({
@@ -45,17 +46,15 @@ export default function PostCard({
             })
       }
     >
-      {/* Image */}
-      {typeof image === "string" ? (
-        <Image source={{ uri: image }} style={styles.image} />
-      ) : (
-        <Image source={image} style={styles.image} />
-      )}
+      {image ? (
+        <Image
+          source={{ uri: image }}
+          style={styles.image}
+          resizeMode="cover"
+        />
+      ) : null}
 
       <View style={styles.content}>
-        <Text style={[styles.category, { color: colors.tint }]}>
-          {category}
-        </Text>
         <Text style={[styles.title, { color: colors.text }]} numberOfLines={2}>
           {decodeHtmlEntities(post.title.rendered)}
         </Text>
@@ -65,7 +64,10 @@ export default function PostCard({
         >
           {decodeHtmlEntities(excerpt)}
         </Text>
-        <Text style={[styles.date, { color: "#888" }]}>{formattedDate}</Text>
+
+        <View style={styles.footer}>
+          <Text style={[styles.date, { color: "#666" }]}>{formattedDate}</Text>
+        </View>
       </View>
     </Pressable>
   );
@@ -73,41 +75,43 @@ export default function PostCard({
 
 const styles = StyleSheet.create({
   card: {
-    flexDirection: "row-reverse",
-    borderRadius: 10,
-    marginBottom: 16,
+    borderRadius: 12,
     overflow: "hidden",
-    padding: 10,
-    alignItems: "center",
+    marginBottom: 20,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 4,
   },
   image: {
-    width: 80,
-    height: 80,
-    borderRadius: 6,
-    marginLeft: 10,
+    width: "100%",
+    height: 200,
   },
   content: {
-    flex: 1,
-  },
-  category: {
-    fontSize: 12,
-    textAlign: "right",
-    marginBottom: 4,
-    fontWeight: "500",
+    padding: 12,
   },
   title: {
-    fontSize: 14,
-    textAlign: "right",
-    fontWeight: "600",
+    fontSize: 16,
+    fontWeight: "700",
+    textAlign: "left",
+    writingDirection: "rtl",
+    marginBottom: 6,
   },
   excerpt: {
-    fontSize: 13,
-    textAlign: "right",
-    marginTop: 4,
+    fontSize: 14,
+    textAlign: "left",
+    writingDirection: "rtl",
+    marginBottom: 16,
+  },
+  footer: {
+    flexDirection: "row-reverse",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    marginBottom: 10,
   },
   date: {
-    fontSize: 12,
+    fontSize: 13,
     textAlign: "right",
-    marginTop: 6,
   },
 });

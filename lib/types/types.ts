@@ -24,21 +24,19 @@ export type Category = {
 export interface WordPressPost {
   id: number;
   date: string;
-  title: {
-    rendered: string;
-  };
-  excerpt: {
-    rendered: string;
-  };
-  content: {
-    rendered: string;
-  };
+  title: { rendered: string };
+  excerpt: { rendered: string };
+  content: { rendered: string };
   _embedded?: {
-    ["wp:featuredmedia"]?: {
+    "wp:featuredmedia"?: Array<{
       source_url: string;
-    }[];
-    ["wp:term"]?: {
-      name: string;
-    }[][];
+      media_details?: {
+        sizes?: {
+          medium?: { source_url: string };
+          full?: { source_url: string };
+        };
+      };
+    }>;
+    "wp:term"?: { name: string }[][];
   };
 }
