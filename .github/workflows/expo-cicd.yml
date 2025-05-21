@@ -2,8 +2,8 @@ name: Expo CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]     # Trigger on main branch push
-  workflow_dispatch:        # Manual trigger
+    branches: [main] # Trigger on main branch push
+  workflow_dispatch: # Manual trigger
 
 jobs:
   build-and-deploy:
@@ -21,6 +21,9 @@ jobs:
       - name: 📦 Install dependencies
         run: npm install
 
+      - name: 📥 Install EAS CLI
+        run: npm install -g eas-cli
+
       - name: ✅ Run tests (optional)
         run: npm test
         continue-on-error: true
@@ -33,7 +36,7 @@ jobs:
         run: echo "EXPO_TOKEN=${{ secrets.EXPO_TOKEN }}" >> $GITHUB_ENV
 
       - name: 👤 Verify Expo account
-        run: npx eas whoami
+        run: eas whoami
 
       - name: 🏗️ Build Android (internal preview)
         run: npx eas build --platform android --profile preview --non-interactive
