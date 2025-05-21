@@ -11,6 +11,7 @@ export default function TabLayout() {
 
   return (
     <Tabs
+      initialRouteName="index"
       screenOptions={({ route }) => ({
         headerTitleAlign: "center",
         headerRight: () =>
@@ -48,7 +49,7 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
+      {/* <Tabs.Screen
         name="categories"
         options={{
           title: "الأقسام",
@@ -56,7 +57,7 @@ export default function TabLayout() {
             <Ionicons name="list" size={24} color={color} />
           ),
         }}
-      />
+      /> */}
 
       <Tabs.Screen
         name="search"
