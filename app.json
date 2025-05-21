@@ -17,10 +17,10 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.ds2pro.waradalan",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff",
-        "package": "com.ds2pro.waradalan"
+        "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true
     },
