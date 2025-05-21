@@ -33,6 +33,19 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "91db2260-1ffa-4558-b748-73df53cf3037"
+      }
+    },
+    "owner": "ds2",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/91db2260-1ffa-4558-b748-73df53cf3037"
     }
   }
 }
