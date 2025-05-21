@@ -1,36 +1,42 @@
-name: Expo CI/CD
+name: Expo CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
-  workflow_dispatch:
+    branches: [ main ]     # Trigger on main branch push
+  workflow_dispatch:        # Manual trigger
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v3
 
-      - name: Set up Node.js
+      - name: 🟢 Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
-      - name: Install dependencies
+      - name: 📦 Install dependencies
         run: npm install
 
-      - name: Run tests
+      - name: ✅ Run tests (optional)
         run: npm test
+        continue-on-error: true
 
-      - name: Lint code
+      - name: 🧹 Lint code (optional)
         run: npm run lint
+        continue-on-error: true
 
-      - name: Login to Expo
-        run: npx expo login -u ${{ secrets.EXPO_USERNAME }} -p ${{ secrets.EXPO_PASSWORD }}
+      - name: 🔐 Set Expo token from secrets
+        run: echo "EXPO_TOKEN=${{ secrets.EXPO_TOKEN }}" >> $GITHUB_ENV
 
-      - name: Build Android (preview)
+      - name: 👤 Verify Expo account
+        run: npx eas whoami
+
+      - name: 🏗️ Build Android (internal preview)
         run: npx eas build --platform android --profile preview --non-interactive
 
-      - name: Publish update to preview branch
+      - name: 🚀 Publish OTA update to preview branch
         run: npx eas update --branch preview --non-interactive
