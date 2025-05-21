@@ -42,4 +42,4 @@ jobs:
         run: npx eas build --platform android --profile preview --non-interactive
 
       - name: 🚀 Publish OTA update to preview branch
-        run: npx eas update --branch preview --non-interactive
+        run: npx eas update --branch preview --message "CI/CD OTA update" --non-interactive
