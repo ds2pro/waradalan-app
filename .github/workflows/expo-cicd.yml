@@ -28,9 +28,9 @@ jobs:
         run: npm test
         continue-on-error: true
 
-      - name: 🧹 Lint code (optional)
-        run: npm run lint
-        continue-on-error: true
+      #- name: 🧹 Lint code (optional)
+      #  run: npm run lint
+      #  continue-on-error: true
 
       - name: 🔐 Set Expo token from secrets
         run: echo "EXPO_TOKEN=${{ secrets.EXPO_TOKEN }}" >> $GITHUB_ENV
