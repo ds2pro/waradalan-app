@@ -43,6 +43,7 @@ jobs:
         run: npm test
         continue-on-error: true
 
+      # Uncomment the following lines if you want to run linting
       #- name: 🧹 Lint code (optional)
       #  run: npm run lint
       #  continue-on-error: true
