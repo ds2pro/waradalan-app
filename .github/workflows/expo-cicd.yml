@@ -2,8 +2,8 @@ name: Expo CI/CD Pipeline
 
 on:
   push:
-    branches: [main] # Trigger on main branch push
-  workflow_dispatch: # Manual trigger
+    branches: [main]
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
@@ -16,27 +16,36 @@ jobs:
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
 
-      - name: 📦 Install dependencies
-        run: npm install
+      - name: 📦 Install dependencies (aligned with Expo SDK)
+        run: npx expo install
 
       - name: 📥 Install EAS CLI
         run: npm install -g eas-cli
 
-      - name: ✅ Run tests (optional)
-        run: npm test
-        continue-on-error: true
+      - name: 🧹 Ensure Metro cache is clean
+        run: rm -rf node_modules/.cache
 
-      #- name: 🧹 Lint code (optional)
-      #  run: npm run lint
-      #  continue-on-error: true
+      - name: ✅ Check babel.config.js
+        run: |
+          if [ ! -f babel.config.js ]; then
+            echo "Missing babel.config.js"; exit 1;
+          fi
 
       - name: 🔐 Set Expo token from secrets
         run: echo "EXPO_TOKEN=${{ secrets.EXPO_TOKEN }}" >> $GITHUB_ENV
 
       - name: 👤 Verify Expo account
         run: eas whoami
+
+      - name: 🧪 Run tests (optional)
+        run: npm test
+        continue-on-error: true
+
+      #- name: 🧹 Lint code (optional)
+      #  run: npm run lint
+      #  continue-on-error: true
 
       - name: 🏗️ Build Android (internal preview)
         run: npx eas build --platform android --profile preview --non-interactive
