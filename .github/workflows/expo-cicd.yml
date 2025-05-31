@@ -32,13 +32,13 @@ jobs:
       #  run: npm run lint
       #  continue-on-error: true
 
-      #- name: 🔐 Set Expo token from secrets
-      #  run: echo "EXPO_TOKEN=${{ secrets.EXPO_TOKEN }}" >> $GITHUB_ENV
-
       - name: 🔐 Set Expo token from secrets
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-        run: echo "Token injected"
+        run: echo "EXPO_TOKEN=${{ secrets.EXPO_TOKEN }}" >> $GITHUB_ENV
+
+      #- name: 🔐 Set Expo token from secrets
+      #  env:
+      #    EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      #  run: echo "Token injected"
 
       - name: 👤 Verify Expo account
         run: eas whoami
