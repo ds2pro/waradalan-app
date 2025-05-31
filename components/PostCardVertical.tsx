@@ -23,6 +23,7 @@ export default function PostCardVertical({
     Image.resolveAssetSource(require("@/assets/images/logo.png")).uri;
 
   const excerpt = post.excerpt?.rendered?.replace(/<[^>]+>/g, "");
+  const author = post._embedded?.author?.[0]?.name;
   const formattedDate = new Date(post.date).toLocaleString("ar-LB", {
     year: "numeric",
     month: "short",
@@ -67,6 +68,11 @@ export default function PostCardVertical({
 
         <View style={styles.footer}>
           <Text style={[styles.date, { color: "#666" }]}>{formattedDate}</Text>
+          {author && (
+            <Text style={[styles.author, { color: "#888" }]}>
+              الكاتب: {author}
+            </Text>
+          )}
         </View>
       </View>
     </Pressable>
@@ -105,13 +111,17 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   footer: {
-    flexDirection: "row-reverse",
-    justifyContent: "flex-end",
-    alignItems: "center",
+    flexDirection: "column",
+    alignItems: "flex-start",
     marginBottom: 10,
   },
   date: {
     fontSize: 13,
     textAlign: "right",
+  },
+  author: {
+    fontSize: 12,
+    textAlign: "right",
+    marginTop: 4,
   },
 });

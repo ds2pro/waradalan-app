@@ -38,5 +38,6 @@ export interface WordPressPost {
       };
     }>;
     "wp:term"?: { name: string }[][];
+    author?: Array<{ name: string }>;
   };
 }

@@ -52,10 +52,31 @@ export async function getCategories(): Promise<Category[]> {
 
 export async function getPosts(params: Record<string, any> = {}) {
   try {
+    if (!params.after) {
+      const threeMonthsAgo = new Date();
+      threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+      params.after = threeMonthsAgo.toISOString();
+    }
+
     const query = new URLSearchParams({ ...params, _embed: "true" }).toString();
     const res = await fetch(`${API_URL}/posts?${query}`);
 
-    if (!res.ok) throw new Error("Failed to fetch posts");
+    if (!res.ok) {
+      const isJson = res.headers
+        .get("content-type")
+        ?.includes("application/json");
+      const message = isJson ? await res.json() : await res.text();
+
+      if (isJson && message?.code === "rest_post_invalid_page_number") {
+        return { posts: [], total: 0 };
+      }
+
+      console.warn("Warning: Failed to fetch posts", {
+        status: res.status,
+        message,
+      });
+      return { posts: [], total: 0 };
+    }
 
     const data = await res.json();
 
@@ -73,25 +94,42 @@ export async function getPosts(params: Record<string, any> = {}) {
 }
 
 export async function getPost(id: string): Promise<WordPressPost> {
-  const res = await fetch(`${API_URL}/posts/${id}?_embed`);
-  if (!res.ok) throw new Error("Failed to fetch post");
-  return res.json();
+  try {
+    if (!id) throw new Error("Post ID is required");
+    if (typeof id !== "string") {
+      throw new Error("Post ID must be a string");
+    }
+    const res = await fetch(
+      `${API_URL}/posts/${id}?_embed=author,wp:featuredmedia`
+    );
+    if (!res.ok) throw new Error("Failed to fetch post");
+    return res.json();
+  } catch (error) {
+    console.error("Error validating post ID:", error);
+    return Promise.reject("Invalid post ID");
+  }
 }
 
 export async function getRelatedPosts(
   postId: string
 ): Promise<WordPressPost[]> {
-  // Option 1: Fetch by category of this post
-  const postRes = await fetch(`${API_URL}/posts/${postId}?_embed`);
-  if (!postRes.ok) return [];
-  const post = await postRes.json();
-  const categoryId = post.categories?.[0];
+  try {
+    const postRes = await fetch(`${API_URL}/posts/${postId}?_embed`);
+    if (!postRes.ok) return [];
 
-  if (!categoryId) return [];
+    const post = await postRes.json();
+    const categoryId = post.categories?.[0];
+    if (!categoryId) return [];
 
-  const res = await fetch(
-    `${API_URL}/posts?categories=${categoryId}&exclude=${postId}&_embed&per_page=5`
-  );
-  if (!res.ok) return [];
-  return res.json();
+    const { posts } = await getPosts({
+      categories: categoryId,
+      exclude: postId,
+      per_page: 5,
+    });
+
+    return posts;
+  } catch (error) {
+    console.error("Error fetching related posts:", error);
+    return [];
+  }
 }

@@ -33,11 +33,6 @@ export default function PostScreen() {
       const relatedPosts = await getRelatedPosts(id as string);
       setPost(fetchedPost);
       setRelated(relatedPosts);
-      navigation.setOptions({
-        title: decodeHtmlEntities(
-          fetchedPost.title.rendered.replace(/<[^>]+>/g, "")
-        ),
-      });
       setLoading(false);
     })();
   }, [id]);
@@ -55,6 +50,16 @@ export default function PostScreen() {
       </View>
     );
   }
+
+  const formattedDate = new Date(post!.date).toLocaleString("ar-LB", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+
+  const author = post?._embedded?.author?.[0]?.name;
 
   return (
     <ScrollView
@@ -81,8 +86,13 @@ export default function PostScreen() {
             />
           )}
           <Text style={[styles.date, { color: colors.text }]}>
-            {new Date(post.date).toLocaleString("ar-LB")}
+            {formattedDate}
           </Text>
+          {author && (
+            <Text style={[styles.author, { color: colors.text }]}>
+              الكاتب: {author}
+            </Text>
+          )}
           <Text style={[styles.content, { color: colors.text }]}>
             {decodeHtmlEntities(post.content.rendered.replace(/<[^>]+>/g, ""))}
           </Text>
@@ -121,7 +131,13 @@ const styles = StyleSheet.create({
   },
   date: {
     textAlign: "right",
+    marginBottom: 4,
+    fontSize: 12,
+  },
+  author: {
+    textAlign: "right",
     marginBottom: 10,
+    fontSize: 12,
   },
   content: {
     textAlign: "right",

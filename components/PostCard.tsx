@@ -21,6 +21,7 @@ export default function PostCard({
     require("@/assets/images/logo.png");
 
   const category = post._embedded?.["wp:term"]?.[0]?.[0]?.name;
+  const author = post._embedded?.author?.[0]?.name;
   const excerpt = post.excerpt?.rendered?.replace(/<[^>]+>/g, "");
   const formattedDate = new Date(post.date).toLocaleString("ar-LB", {
     year: "numeric",
@@ -66,6 +67,11 @@ export default function PostCard({
           {decodeHtmlEntities(excerpt)}
         </Text>
         <Text style={[styles.date, { color: "#888" }]}>{formattedDate}</Text>
+        {author && (
+          <Text style={[styles.author, { color: "#888" }]}>
+            الكاتب: {author}
+          </Text>
+        )}
       </View>
     </Pressable>
   );
@@ -109,5 +115,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: "right",
     marginTop: 6,
+  },
+  author: {
+    fontSize: 12,
+    textAlign: "right",
+    marginTop: 4,
   },
 });

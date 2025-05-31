@@ -13,11 +13,13 @@ export default function PostDetails({
   post: WordPressPost;
   related?: WordPressPost[];
 }) {
+  const author = post._embedded?.author?.[0]?.name;
+
   const image =
     post._embedded?.["wp:featuredmedia"]?.[0]?.source_url ??
     require("@/assets/images/logo.png");
 
-  const formattedDate = new Date(post.date).toLocaleString("ar-EG", {
+  const formattedDate = new Date(post.date).toLocaleString("ar-LB", {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -45,9 +47,14 @@ export default function PostDetails({
           style={styles.image}
         />
 
-        <Text style={[styles.meta, { color: colors.tabIconDefault }]}>
-          {formattedDate}
-        </Text>
+        <View style={styles.metaWrapper}>
+          <Text style={[styles.date, { color: "#888" }]}>{formattedDate}</Text>
+          {author && (
+            <Text style={[styles.author, { color: "#888" }]}>
+              الكاتب: {author}
+            </Text>
+          )}
+        </View>
 
         <Text style={[styles.content, { color: colors.text }]}>
           {decodeHtmlEntities(post.content?.rendered?.replace(/<[^>]+>/g, ""))}
@@ -85,10 +92,19 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 12,
   },
-  meta: {
+  metaWrapper: {
+    alignItems: "flex-start",
+    marginBottom: 8,
+  },
+  date: {
     fontSize: 12,
     textAlign: "right",
-    marginBottom: 16,
+    marginTop: 6,
+  },
+  author: {
+    fontSize: 12,
+    textAlign: "right",
+    marginTop: 4,
   },
   content: {
     fontSize: 15,

@@ -49,16 +49,15 @@ export default function TabLayout() {
           ),
         }}
       />
-      {/* <Tabs.Screen
-        name="categories"
+      <Tabs.Screen
+        name="contact"
         options={{
-          title: "الأقسام",
+          title: "اتصل بنا",
           tabBarIcon: ({ color }) => (
-            <Ionicons name="list" size={24} color={color} />
+            <Ionicons name="mail" size={24} color={color} />
           ),
         }}
-      /> */}
-
+      />
       <Tabs.Screen
         name="search"
         options={{

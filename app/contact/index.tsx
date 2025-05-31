@@ -44,7 +44,10 @@ export default function ContactScreen() {
     message.length <= 1000;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+    <SafeAreaView
+      edges={["bottom"]}
+      style={{ flex: 1, backgroundColor: colors.background }}
+    >
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -54,19 +57,19 @@ export default function ContactScreen() {
           <ScrollView
             contentContainerStyle={[
               styles.container,
-              { backgroundColor: colors.background },
+              { backgroundColor: colors.background, flexGrow: 1 },
             ]}
             keyboardShouldPersistTaps="handled"
           >
             {/* Header */}
-            <View style={styles.headerRow}>
+            {/* <View style={styles.headerRow}>
               <Pressable onPress={() => router.back()}>
                 <Ionicons name="arrow-back" size={24} color={colors.text} />
               </Pressable>
               <Text style={[styles.headerTitle, { color: colors.text }]}>
                 اتصل بنا
               </Text>
-            </View>
+            </View> */}
 
             {/* Logo */}
             <Image
@@ -148,6 +151,26 @@ export default function ContactScreen() {
                 <Text style={styles.submitText}>إرسال</Text>
               </Pressable>
             </View>
+            <View style={{ flex: 1 }} />
+            <View style={styles.footer}>
+              <Text style={[styles.footerText, { color: colors.text }]}>
+                مبنى صيدلية الرحباني - جبيل - لبنان
+              </Text>
+              <Pressable
+                onPress={() => Linking.openURL("https://www.waradalan.com")}
+              >
+                <Text style={[styles.footerText, { color: colors.tint }]}>
+                  www.waradalan.com
+                </Text>
+              </Pressable>
+              <Pressable
+                onPress={() => Linking.openURL("mailto:info@waradalan.com")}
+              >
+                <Text style={[styles.footerText, { color: colors.tint }]}>
+                  info@waradalan.com
+                </Text>
+              </Pressable>
+            </View>
           </ScrollView>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
@@ -157,19 +180,31 @@ export default function ContactScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
     flexGrow: 1,
   },
-  headerRow: {
-    flexDirection: "row",
+  // headerRow: {
+  //   flexDirection: "row",
+  //   alignItems: "center",
+  //   marginBottom: 20,
+  // },
+  // headerTitle: {
+  //   flex: 1,
+  //   textAlign: "center",
+  //   fontSize: 20,
+  //   fontWeight: "bold",
+  // },
+  footer: {
     alignItems: "center",
-    marginBottom: 20,
+    justifyContent: "center",
+    marginTop: 30,
+    marginBottom: 10,
   },
-  headerTitle: {
-    flex: 1,
+  footerText: {
+    fontSize: 14,
     textAlign: "center",
-    fontSize: 20,
-    fontWeight: "bold",
+    marginBottom: 4,
   },
   logo: {
     width: 160,
