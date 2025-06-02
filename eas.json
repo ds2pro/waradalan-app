@@ -26,9 +26,6 @@
     }
   },
   "submit": {
-    "production": {
-      "appleId": "info@ds2pro.com",
-      "ascAppId": "YOUR_ASC_APP_ID"
-    }
+    "production": {}
   }
 }
