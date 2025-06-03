@@ -14,11 +14,13 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
+      "buildNumber": "1.0.1",
       "supportsTablet": true,
       "bundleIdentifier": "com.ds2pro.waradalan"
     },
     "android": {
       "package": "com.ds2pro.waradalan",
+      "versionCode": 2,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
