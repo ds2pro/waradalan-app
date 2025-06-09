@@ -22,6 +22,7 @@ jobs:
           port: 22
           script: |
             cd /root/waradalan-app
+
             echo "🧹 Cleaning workspace"
             git reset --hard HEAD
             git clean -fd
@@ -32,10 +33,9 @@ jobs:
             echo "📦 Installing dependencies"
             npm ci
 
-            echo "🔧 Ensuring babel-plugin-module-resolver is installed"
-            if ! npm list babel-plugin-module-resolver >/dev/null 2>&1; then
-              npm install --save-dev babel-plugin-module-resolver
-            fi
+            echo "🔧 Setting Android SDK environment"
+            export ANDROID_HOME=$HOME/Android
+            export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH
 
             echo "🚀 Building Android .aab"
             export NODE_ENV=production
