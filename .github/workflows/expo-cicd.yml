@@ -1,53 +1,27 @@
-name: Expo CI/CD Pipeline
+name: Expo CI/CD Pipeline (Local VPS Build)
 
 on:
   push:
-    branches: [main] # Trigger on main branch push
-  workflow_dispatch: # Manual trigger
+    branches: [main]
+  workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  build-on-vps:
     runs-on: ubuntu-latest
 
     steps:
-      - name: ⬇️ Checkout code
+      - name: 📥 Checkout repo (for metadata only)
         uses: actions/checkout@v3
 
-      - name: 🟢 Setup Node.js
-        uses: actions/setup-node@v3
+      - name: 🚀 SSH into VPS and build .aab
+        uses: appleboy/ssh-action@v0.1.10
         with:
-          node-version: 20
-
-      - name: 📦 Install dependencies
-        run: npm install
-
-      - name: 📥 Install EAS CLI
-        run: npm install -g eas-cli
-
-      - name: ✅ Run tests (optional)
-        run: npm test
-        continue-on-error: true
-
-      #- name: 🧹 Lint code (optional)
-      #  run: npm run lint
-      #  continue-on-error: true
-
-      - name: 🔐 Set Expo token from secrets
-        run: echo "EXPO_TOKEN=${{ secrets.EXPO_TOKEN }}" >> $GITHUB_ENV
-
-      #- name: 🔐 Set Expo token from secrets
-      #  env:
-      #    EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-      #  run: echo "Token injected"
-
-      - name: 👤 Verify Expo account
-        run: eas whoami
-
-      - name: 🏗️ Build Android (internal preview)
-        run: npx eas build --platform android --profile preview --non-interactive
-
-      - name: 🏗️ Build iOS (simulator preview)
-        run: npx eas build --platform ios --profile preview --non-interactive
-
-      - name: 🚀 Publish OTA update to preview branch
-        run: npx eas update --branch preview --message "CI/CD OTA update" --non-interactive
+          host: ${{ secrets.VPS_HOST }}
+          username: root
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          script: |
+            cd /root/waradalan-app
+            git pull origin main
+            export NODE_ENV=production
+            npx eas build --platform android --profile production --local
