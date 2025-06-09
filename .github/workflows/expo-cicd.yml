@@ -20,15 +20,18 @@ jobs:
           username: root
           key: ${{ secrets.VPS_SSH_KEY }}
           port: 22
-          timeout: 60m # ⬅️ Increase SSH timeout
-          command_timeout: 60m # ⬅️ Increase individual command timeout
+          timeout: 60m
+          command_timeout: 60m
           script: |
             cd /root/waradalan-app
+
             echo "🧹 Cleaning workspace"
             git reset --hard HEAD
             git clean -fd
+
             echo "📥 Pulling latest code"
             git pull origin main
+
             echo "📦 Installing dependencies"
             npm ci
 
@@ -39,3 +42,16 @@ jobs:
             echo "🚀 Building Android .aab"
             export NODE_ENV=production
             npx eas build --platform android --profile production --local
+
+            echo "📂 Ensuring /root/builds exists"
+            mkdir -p /root/builds
+
+            echo "📦 Moving AAB to /root/builds"
+            AAB_FILE=$(ls build-*.aab | tail -n 1)
+            if [ -f "$AAB_FILE" ]; then
+              mv "$AAB_FILE" /root/builds/
+              echo "✅ Build moved to /root/builds/$AAB_FILE"
+            else
+              echo "❌ No .aab file found to move."
+              exit 1
+            fi
