@@ -20,16 +20,15 @@ jobs:
           username: root
           key: ${{ secrets.VPS_SSH_KEY }}
           port: 22
+          timeout: 60m # ⬅️ Increase SSH timeout
+          command_timeout: 60m # ⬅️ Increase individual command timeout
           script: |
             cd /root/waradalan-app
-
             echo "🧹 Cleaning workspace"
             git reset --hard HEAD
             git clean -fd
-
             echo "📥 Pulling latest code"
             git pull origin main
-
             echo "📦 Installing dependencies"
             npm ci
 
