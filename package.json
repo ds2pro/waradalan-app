@@ -9,7 +9,7 @@
     "web": "expo start --web",
     "test": "jest --passWithNoTests",
     "lint": "eslint .",
-    "bump:auto": "node bump-version.js"
+    "release": "standard-version && node scripts/sync-app-json.js"
   },
   "jest": {
     "preset": "jest-expo"
@@ -57,6 +57,7 @@
     "jest-expo": "~53.0.5",
     "react-test-renderer": "19.0.0",
     "semver": "^7.7.2",
+    "standard-version": "^9.5.0",
     "typescript": "~5.8.3"
   },
   "private": true
