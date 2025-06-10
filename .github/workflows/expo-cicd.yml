@@ -1,4 +1,4 @@
-name: Expo CI/CD Pipeline (Local VPS Build)
+name: Expo CI/CD Pipeline (Local VPS Build with Version Bump)
 
 on:
   push:
@@ -10,8 +10,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📥 Checkout repo (for metadata only)
+      - name: 📥 Checkout repo (for metadata + version bump)
         uses: actions/checkout@v3
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🔢 Auto bump version from commit message
+        run: npm run bump:auto
+
+      - name: 📝 Commit and push updated version
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add package.json app.json
+          git commit -m "ci: bump version [skip ci]" || echo "No changes to commit"
+          git push origin main
 
       - name: 🚀 SSH into VPS and build .aab
         uses: appleboy/ssh-action@v0.1.10
