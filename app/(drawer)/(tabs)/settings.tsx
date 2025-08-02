@@ -4,20 +4,48 @@ import {
   StyleSheet,
   Switch,
   ScrollView,
-  useColorScheme,
+  Alert,
 } from "react-native";
 import { useAppTheme } from "@/lib/context/ThemeContext";
-import { useState } from "react";
-import { Link } from "expo-router";
+import { useState, useEffect } from "react";
 import Colors from "@/constants/Colors";
+import * as Notifications from "expo-notifications";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function SettingsScreen() {
-  const systemScheme = useColorScheme();
   const { theme, toggleTheme } = useAppTheme();
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
   const isDark = theme === "dark";
   const colors = Colors[theme];
+
+  useEffect(() => {
+    (async () => {
+      const saved = await AsyncStorage.getItem("notifications_enabled");
+      setNotificationsEnabled(saved === "true");
+    })();
+  }, []);
+
+  const toggleNotifications = async () => {
+    if (notificationsEnabled) {
+      await AsyncStorage.setItem("notifications_enabled", "false");
+      setNotificationsEnabled(false);
+      return;
+    }
+
+    const { status } = await Notifications.getPermissionsAsync();
+    if (status !== "granted") {
+      const { status: newStatus } =
+        await Notifications.requestPermissionsAsync();
+      if (newStatus !== "granted") {
+        Alert.alert("تم رفض الإذن", "يرجى تفعيل الإشعارات من الإعدادات.");
+        return;
+      }
+    }
+
+    await AsyncStorage.setItem("notifications_enabled", "true");
+    setNotificationsEnabled(true);
+  };
 
   return (
     <ScrollView
@@ -51,14 +79,13 @@ export default function SettingsScreen() {
           </Text>
           <Switch
             value={notificationsEnabled}
-            onValueChange={setNotificationsEnabled}
+            onValueChange={toggleNotifications}
             thumbColor={notificationsEnabled ? "#4BA761" : "#ccc"}
             trackColor={{ false: "#ccc", true: "#CFF0DD" }}
           />
         </View>
       </View>
 
-      {/* Push footer to bottom */}
       <View style={{ flex: 1, justifyContent: "flex-end", marginTop: 60 }}>
         <Text style={[styles.footer, { color: colors.text }]}>
           © جميع الحقوق محفوظة ورد الآن {new Date().getFullYear()}{" "}
