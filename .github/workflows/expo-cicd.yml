@@ -1,72 +1,91 @@
-name: Expo CI/CD Pipeline (Local VPS Build with Version Bump)
+name: Expo AAB Builder (VPS)
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
+env:
+  PROJECT_DIR: /root/waradalan-app
+  BUILD_DIR: /root/builds
+
 jobs:
-  build-on-vps:
+  build-aab:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
 
     steps:
-      - name: 📥 Checkout repo (for metadata + version bump)
-        uses: actions/checkout@v3
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
 
-      - name: 🟢 Setup Node.js
-        uses: actions/setup-node@v3
+      - name: 🟢 Setup Node.js 20
+        uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: "npm"
 
       - name: 📦 Install dependencies
         run: npm ci
 
-      - name: 🔖 Standard Version Release
+      - name: 🔖 Version bump and tag
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           npm run release
           git push origin main --follow-tags
 
-      - name: 🚀 SSH into VPS and build .aab
-        uses: appleboy/ssh-action@v0.1.10
+      - name: 🚀 Remote AAB Build on VPS
+        uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
           username: root
           key: ${{ secrets.VPS_SSH_KEY }}
           port: 22
-          timeout: 60m
-          command_timeout: 60m
+          timeout: 60m # Correct parameter name for SSH timeout
+          command_timeout: 60m # Timeout for individual commands
           script: |
-            cd /root/waradalan-app
+            set -e
 
-            echo "🧹 Cleaning workspace"
+            echo "🔧 Setting up environment..."
+            export ANDROID_HOME=$HOME/Android
+            export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
+
+            echo "📂 Navigating to project..."
+            cd $PROJECT_DIR
+
+            echo "🧹 Cleaning workspace..."
             git reset --hard HEAD
             git clean -fd
-
-            echo "📥 Pulling latest code"
             git pull origin main
 
-            echo "📦 Installing dependencies"
-            npm ci
+            echo "📦 Installing dependencies..."
+            npm ci --no-audit
 
-            echo "🔧 Setting Android SDK environment"
-            export ANDROID_HOME=$HOME/Android
-            export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH
+            echo "🚀 Building AAB (this may take 15-25 minutes)..."
+            npx eas build --platform android \
+              --profile production \
+              --non-interactive \
+              --no-wait \
+              --local
 
-            echo "🚀 Building Android .aab"
-            export NODE_ENV=production
-            npx eas build --platform android --profile production --local
+            echo "🔄 Waiting for build to complete..."
+            sleep 60 # Initial buffer
 
-            echo "📂 Ensuring /root/builds exists"
-            mkdir -p /root/builds
+            # Monitor build process
+            while pgrep -f "gradlew" >/dev/null; do
+              echo "⏳ Build still running..."
+              sleep 30
+            done
 
-            echo "📦 Moving AAB to /root/builds"
-            AAB_FILE=$(ls build-*.aab | tail -n 1)
-            if [ -f "$AAB_FILE" ]; then
-              mv "$AAB_FILE" /root/builds/
-              echo "✅ Build moved to /root/builds/$AAB_FILE"
+            echo "📦 Locating AAB file..."
+            mkdir -p $BUILD_DIR
+            AAB_PATH=$(find $PROJECT_DIR -name '*.aab' | head -n 1)
+
+            if [ -f "$AAB_PATH" ]; then
+              mv "$AAB_PATH" $BUILD_DIR/
+              echo "✅ AAB saved to $BUILD_DIR/$(basename $AAB_PATH)"
             else
-              echo "❌ No .aab file found to move."
+              echo "❌ AAB not found! Build likely failed."
+              find $PROJECT_DIR/android -name '*.log' -exec cat {} \;
               exit 1
             fi
