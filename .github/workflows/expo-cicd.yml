@@ -9,7 +9,7 @@ jobs:
   build-on-vps:
     runs-on: ubuntu-latest
     outputs:
-      build_status: ${{ steps.set-output.outputs.status }}
+      build_status: ${{ steps.buildstep.outputs.status }}
     steps:
       - name: 📥 Checkout repo (for metadata)
         uses: actions/checkout@v3
@@ -20,7 +20,7 @@ jobs:
           node-version: 20
 
       - name: 🚀 SSH into VPS and build .aab
-        id: set-output
+        id: buildstep
         uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -59,10 +59,10 @@ jobs:
             AAB_FILE=$(find . -name "*.aab" | tail -n 1)
             if [ -f "$AAB_FILE" ]; then
               mv "$AAB_FILE" /root/builds/
-              echo "::set-output name=status::success"
+              echo "status=success" >> $GITHUB_OUTPUT
               echo "✅ Build moved to /root/builds/$AAB_FILE"
             else
-              echo "::set-output name=status::fail"
+              echo "status=fail" >> $GITHUB_OUTPUT
               echo "❌ No .aab file found to move."
               exit 1
             fi
