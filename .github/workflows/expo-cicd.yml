@@ -8,9 +8,10 @@ on:
 jobs:
   build-on-vps:
     runs-on: ubuntu-latest
-
+    outputs:
+      build_status: ${{ steps.set-output.outputs.status }}
     steps:
-      - name: 📥 Checkout repo (for metadata + version bump)
+      - name: 📥 Checkout repo (for metadata)
         uses: actions/checkout@v3
 
       - name: 🟢 Setup Node.js
@@ -18,17 +19,8 @@ jobs:
         with:
           node-version: 20
 
-      - name: 📦 Install dependencies
-        run: npm ci
-
-      - name: 🔖 Standard Version Release
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          npm run release
-          git push origin main --follow-tags
-
       - name: 🚀 SSH into VPS and build .aab
+        id: set-output
         uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -37,7 +29,9 @@ jobs:
           port: 22
           timeout: 60m
           command_timeout: 60m
+          script_stop: true
           script: |
+            set -e
             cd /root/waradalan-app
 
             echo "🧹 Cleaning workspace"
@@ -62,11 +56,36 @@ jobs:
             mkdir -p /root/builds
 
             echo "📦 Moving AAB to /root/builds"
-            AAB_FILE=$(ls build-*.aab | tail -n 1)
+            AAB_FILE=$(find . -name "*.aab" | tail -n 1)
             if [ -f "$AAB_FILE" ]; then
               mv "$AAB_FILE" /root/builds/
+              echo "::set-output name=status::success"
               echo "✅ Build moved to /root/builds/$AAB_FILE"
             else
+              echo "::set-output name=status::fail"
               echo "❌ No .aab file found to move."
               exit 1
             fi
+
+  version-bump:
+    needs: build-on-vps
+    if: needs.build-on-vps.outputs.build_status == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout repo
+        uses: actions/checkout@v3
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🔖 Standard Version Release
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          npm run release
+          git push origin main --follow-tags
