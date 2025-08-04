@@ -7,53 +7,63 @@ on:
 
 jobs:
   build-on-vps:
-    name: 🏗️ Build Android AAB + Version Bump (if success)
     runs-on: ubuntu-latest
-
     steps:
-      - name: 📥 Checkout repo
-        uses: actions/checkout@v4
+      - name: 📥 Checkout repo (for metadata)
+        uses: actions/checkout@v3
 
-      - name: 🤝 SSH into VPS and build
-        uses: appleboy/ssh-action@v1.0.0
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: 🚀 SSH into VPS and build .aab with optional version bump
+        uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.VPS_HOST }}
           username: root
           key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          timeout: 60m
+          command_timeout: 60m
+          script_stop: true
           script: |
+            set -e
             cd /root/waradalan-app
 
-            echo "🧹 Cleaning previous build artifacts"
-            rm -rf dist android/app/build /root/builds || true
+            echo "🧹 Cleaning workspace"
+            git reset --hard HEAD
+            git clean -fd
+
+            echo "📥 Pulling latest code"
+            git pull origin main
+
+            echo "📦 Installing dependencies"
+            npm ci
+
+            echo "🔧 Setting Android SDK environment"
+            export ANDROID_HOME=$HOME/Android
+            export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH
+
+            echo "🚀 Building Android .aab"
+            export NODE_ENV=production
+            npx eas build --platform android --profile production --local
+
+            echo "📂 Ensuring /root/builds exists"
             mkdir -p /root/builds
 
-            echo "🚀 Building AAB"
-            npx eas build --local --platform android --output=dist/app-release.aab
-
-            AAB_FILE="dist/app-release.aab"
-
+            echo "📦 Looking for AAB"
+            AAB_FILE=$(find . -name "*.aab" | tail -n 1)
             if [ -f "$AAB_FILE" ]; then
-              echo "✅ Build succeeded"
               mv "$AAB_FILE" /root/builds/
+              echo "✅ Build moved to /root/builds/$(basename "$AAB_FILE")"
 
-              echo "🔖 Running version bump"
-              git config --global user.email "ci@github.com"
-              git config --global user.name "CI Bot"
-
-              git checkout main
-
-              # Make sure working directory is clean
-              git reset --hard
-              git clean -fd
-
-              # Bump version, generate changelog and tag
-              npx standard-version --skip.commit --skip.tag
-
-              # Commit and push
-              git add .
-              git commit -m "ci: version bump after successful build"
-              git push origin main
+              echo "🔖 Running version bump..."
+              git config user.name "GitHub Actions"
+              git config user.email "actions@github.com"
+              npm run release
+              git push origin main --follow-tags
             else
-              echo "❌ Build failed — skipping version bump"
+              echo "❌ No .aab file found — skipping version bump"
               exit 1
             fi
