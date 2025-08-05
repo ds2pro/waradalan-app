@@ -1,4 +1,4 @@
-name: Expo CI/CD Pipeline (Local VPS Build with Version Bump and Tagging)
+name: Expo CI/CD Pipeline (Local VPS Build with Version Bump and Tagging on Success)
 
 on:
   push:
