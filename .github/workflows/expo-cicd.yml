@@ -2,12 +2,11 @@ name: Expo CI/CD Pipeline (Local VPS Build with Version Bump and Tagging on Succ
 
 on:
   push:
-    branches: [main]
+    branches: [dev]
   workflow_dispatch:
 
 jobs:
   build-on-vps:
-    if: ${{ !contains(github.event.head_commit && github.event.head_commit.message || '', 'chore(release)') }} # ✅ Skip release loops
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Checkout repo (for metadata)
@@ -37,7 +36,7 @@ jobs:
             git clean -fd
 
             echo "📥 Pulling latest code"
-            git pull origin main
+            git pull origin dev
 
             echo "📦 Installing dependencies"
             npm ci
@@ -63,7 +62,14 @@ jobs:
               git config user.name "GitHub Actions"
               git config user.email "actions@github.com"
               npm run release
-              git push origin main --follow-tags
+
+              echo "🔀 Merging dev → main"
+              git checkout main
+              git merge dev --no-edit
+
+              echo "🚀 Pushing changes to main with tags"
+              git push origin main
+              git push origin --tags
             else
               echo "❌ No .aab file found — skipping version bump"
               exit 1
