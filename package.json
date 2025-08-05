@@ -9,7 +9,8 @@
     "web": "expo start --web",
     "test": "jest --passWithNoTests",
     "lint": "eslint .",
-    "release": "standard-version && node scripts/sync-app-json.js"
+    "release": "standard-version",
+    "postversion": "node scripts/sync-version.js && git add app.json && git commit -m \"chore: sync app.json version\" || echo \"No changes to commit\""
   },
   "jest": {
     "preset": "jest-expo"
