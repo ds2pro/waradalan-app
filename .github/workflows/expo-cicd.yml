@@ -36,6 +36,7 @@ jobs:
             git clean -fd
 
             echo "📥 Pulling latest code"
+            git config pull.rebase false
             git pull origin dev
 
             echo "📦 Installing dependencies"
