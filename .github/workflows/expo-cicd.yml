@@ -62,7 +62,16 @@ jobs:
               echo "🔖 Running version bump..."
               git config user.name "GitHub Actions"
               git config user.email "actions@github.com"
-              npm run release
+
+              # Get current version from package.json
+              CURRENT_VERSION=$(node -p "require('./package.json').version")
+              TAG="v$CURRENT_VERSION"
+
+              if git rev-parse "$TAG" >/dev/null 2>&1; then
+                echo "⏭️ Tag $TAG already exists. Skipping release."
+              else
+                npm run release
+              fi
 
               echo "🔀 Merging dev → main"
               git checkout main
